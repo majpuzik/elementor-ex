@@ -1,18 +1,18 @@
-# cloudflared ingress + DNS pro nový subweb
+# cloudflared ingress + DNS for a new sub-site
 
-1. **Ingress** do `~/.cloudflared/<tunnel>-config.yml` — vlož PŘED `service: http_status:404`:
+1. **Ingress** in `~/.cloudflared/<tunnel>-config.yml` — insert BEFORE `service: http_status:404`:
    ```yaml
-     - hostname: SUBDOMAIN.example.eu
+     - hostname: SUBDOMAIN.example.com
        service: http://localhost:PORT
    ```
-2. **DNS** (CNAME → tunnel) přes tunnel credentials:
+2. **DNS** (CNAME -> tunnel) via the tunnel credentials:
    ```bash
-   cloudflared tunnel route dns <TUNNEL_ID> SUBDOMAIN.example.eu
+   cloudflared tunnel route dns <TUNNEL_ID> SUBDOMAIN.example.com
    ```
 3. **Restart**: `sudo systemctl restart cloudflared-<name>`
 
-## Pasti
-- **Ověřuj přes veřejnou DNS** (`dig @8.8.8.8`), ne tailnet (MagicDNS → falešné OK).
-- urllib/Python dostane od Cloudflare **403** (bot UA) — testuj curlem s prohlížečovým UA.
-- Pretty permalinky → WP `.htaccess` musí existovat (dev `wp server` ho nemá).
-- Cloudflare **Email Obfuscation** (zone) přepíše `mail@x` na `[email protected]` — zónové nastavení.
+## Gotchas
+- **Verify via public DNS** (`dig @8.8.8.8`), not over a VPN/tailnet (MagicDNS gives false OK).
+- urllib/Python gets a **403** from Cloudflare (bot UA) — test with curl and a browser UA.
+- Pretty permalinks need a WP `.htaccess` (the dev `wp server` doesn't create one).
+- Cloudflare **Email Obfuscation** (zone setting) rewrites `mail@x` to `[email protected]`.

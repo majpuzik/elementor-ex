@@ -1,9 +1,12 @@
 <?php
 /**
- * Inventář Elementor stránek + typů widgetů.
- * Spuštění: wp eval-file tools/analyze-elementor.php
- * Rozhodne, zda je web vhodný pro přímou de-Elementorizaci (málo widget typů,
- * převážně html/shortcode) nebo zda je to velká práce (hodně vizuálních widgetů).
+ * Inventory of Elementor pages + a histogram of the widget TYPES used site-wide.
+ * Usage: wp eval-file tools/analyze-elementor.php
+ *
+ * Use this to decide fit: if the widgets are mostly html / shortcode / text-editor,
+ * the site is a great fit for direct de-Elementorization (convert-all.php). If it is
+ * mostly visual widgets (heading, image-box, accordion, tabs, ...) this is a manual
+ * rebuild — see README "the limitation".
  */
 global $wpdb;
 $rows = $wpdb->get_results("
@@ -15,7 +18,7 @@ $rows = $wpdb->get_results("
   ORDER BY p.post_type, p.post_status, p.ID");
 
 $freq = array(); $total = 0;
-echo "=== ELEMENTOR STRÁNKY (" . count($rows) . ") ===\n";
+echo "=== ELEMENTOR PAGES (" . count($rows) . ") ===\n";
 foreach ($rows as $r) {
     $data = get_post_meta($r->ID, '_elementor_data', true);
     $json = is_string($data) ? json_decode($data, true) : $data;
@@ -32,12 +35,12 @@ foreach ($rows as $r) {
     $uniq = array_count_values($widgets);
     $parts = array();
     foreach ($uniq as $k => $v) $parts[] = "$k x$v";
-    printf("  #%d [%s/%s] \"%s\" (/%s) — %d widgetů: %s\n",
+    printf("  #%d [%s/%s] \"%s\" (/%s) — %d widgets: %s\n",
         $r->ID, $r->post_type, $r->post_status, mb_substr($r->post_title, 0, 40),
         $r->post_name, count($widgets), implode(", ", $parts));
 }
-echo "\n=== WIDGET TYPY (" . count($freq) . " typů, $total instancí) ===\n";
+echo "\n=== WIDGET TYPES (" . count($freq) . " types, $total instances) ===\n";
 arsort($freq);
 foreach ($freq as $w => $c) printf("  %-30s %dx\n", $w, $c);
-echo "\nDoporučení: pokud jsou widgety převážně html/shortcode/text-editor,\n";
-echo "je web vhodný pro přímou de-Elementorizaci (convert-all.php).\n";
+echo "\nVerdict: if widgets are mostly html/shortcode/text-editor, this site is a fit\n";
+echo "for direct de-Elementorization (convert-all.php). Visual widgets => manual rebuild.\n";
