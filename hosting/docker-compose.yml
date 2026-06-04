@@ -1,0 +1,36 @@
+# WP hosting stack za cloudflared tunnelem (šablona).
+# html/ = celý WP (core + wp-content), wp-config.php vlastní (viz wp-config-snippet.php).
+# Hesla = PLACEHOLDERY, doplň z secret store.
+services:
+  wp-db:
+    image: mariadb:11
+    container_name: SITE-db
+    restart: unless-stopped
+    environment:
+      MARIADB_DATABASE: SITE_wp
+      MARIADB_USER: SITE
+      MARIADB_PASSWORD: __DB_PASSWORD__
+      MARIADB_ROOT_PASSWORD: __DB_ROOT_PASSWORD__
+    volumes:
+      - SITE_db:/var/lib/mysql
+
+  wp:
+    image: wordpress:php8.3-apache
+    container_name: SITE-wp
+    restart: unless-stopped
+    depends_on: [wp-db]
+    # bind jen na localhost — veřejně dostupné jen přes cloudflared
+    ports: ["127.0.0.1:__PORT__:80"]
+    volumes:
+      - ./html:/var/www/html
+      - ./apache-override.conf:/etc/apache2/conf-enabled/zzz-override.conf
+
+volumes:
+  SITE_db:
+
+# Po nahození:
+#   docker exec -i SITE-db mariadb -u root -p__DB_ROOT_PASSWORD__ SITE_wp < init.sql
+# Jazyk (jako vlastník html, ne www-data!):
+#   docker run --rm --network container:SITE-wp -v $PWD/html:/var/www/html -u 1000:1000 \
+#     wordpress:cli language core install cs_CZ
+#   ... language theme install --all cs_CZ ; language plugin install --all cs_CZ
