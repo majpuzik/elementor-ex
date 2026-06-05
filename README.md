@@ -1,8 +1,14 @@
 # elementor-ex
 
 **A toolkit to remove Elementor from a WordPress site and replace it with native
-WordPress content** (Gutenberg `wp:html` / `wp:shortcode` blocks) — visually 1:1,
-fully deterministic, no AI.
+WordPress content** (Gutenberg `wp:html` / `wp:shortcode` blocks) — **text-exact and
+fully deterministic, no AI**. The *content* comes over 1:1; **visual** parity is not
+automatic and must be verified — Elementor's container layout (section/column
+`max-width` + padding) is CSS the converter can't see, and losing it shifts boxed
+content to full-width. Run `tools/visual-diff.js` and read **“Container layout is
+lost”** below. (Earlier this README said “visually 1:1” — that was optimistic: a real
+conversion regressed the homepage hero to full-width until one CSS rule restored the
+lost `max-width:1140px`.)
 
 It extracts the content out of Elementor's `_elementor_data`, writes it back into the
 native `post_content`, deletes the `_elementor_*` meta, and removes the plugin. The
@@ -46,9 +52,10 @@ conversion, 97–99% text parity against the live site, **zero** Elementor left.
 
 - It does not migrate Elementor **theme-builder** headers/footers/templates (Pro). If
   your header/footer is built in Elementor, you must rebuild those in the theme first.
-- It does not compare **visual/CSS** layout — parity check is text-only (`difflib`).
-  Pure-CSS differences won't be caught. (A vision-model screenshot diff would; not
-  included.)
+- `compare-content.py` checks **text only** (`difflib`) — it won't catch pure CSS/layout
+  differences. For those, use **`tools/visual-diff.js`** (now included): a Playwright
+  screenshot pixel-diff + computed-token table that surfaces exactly the container/colour
+  regressions text parity misses.
 - It assumes the page's CSS comes from the theme / a `custom-css-js`-style plugin /
   the custom plugins — i.e. **not** from Elementor's own widget CSS. Verify this, or
   the styling will break when Elementor's stylesheet stops loading.
@@ -77,8 +84,11 @@ site, AI adds nothing.
    - deletes all `_elementor_*` postmeta → `the_content()` now renders natively
 4. **Remove Elementor** — deactivate + delete the plugin, delete leftover `_elementor_*`
    meta (revisions + kit), `elementor_*` options, and the `uploads/elementor/` CSS cache.
-5. **Verify parity** — `tools/compare-content.py <url-original> <url-converted>`
+5. **Verify text parity** — `tools/compare-content.py <url-original> <url-converted>`
    (target ≥97% visible-text similarity; the rest is dynamic content / locale).
+6. **Verify visual parity** — `node tools/visual-diff.js <url-original> <url-converted> <paths…>`.
+   Read the per-band diff and the “section widths” line; fix any lost container widths
+   (see *Container layout is lost*). Text parity passing does **not** imply visual parity.
 
 ### Gotchas learned the hard way
 
@@ -86,9 +96,25 @@ site, AI adds nothing.
   renders from `_elementor_data`; the stored `post_content` is usually stale. Always
   extract from `_elementor_data` — and **do not** trust Elementor's "Back to WordPress
   Editor", which reverts to that stale/empty `post_content`.
-- **Full-width.** Elementor stretches sections edge-to-edge. Check that your theme still
-  renders full-width after removal (Astra applies `ast-page-builder-template` either
-  way, so it needed no fix here — verify per theme).
+- **Container layout is lost (the one that bites even thin-wrapper sites).** Elementor
+  doesn't just stretch sections edge-to-edge — its containers also *constrain* width and
+  add padding. A hand-written HTML block sitting inside an Elementor container inherits
+  that container's `.e-con-inner{max-width:min(100%,1140px)}` (and section padding).
+  Strip Elementor and that wrapper is gone: the block, whose own CSS never set a width,
+  expands to full viewport width. The content is byte-identical — it's just no longer
+  boxed. Real case here: the homepage hero went **1140px → 1440px**, scaling its
+  background photo differently; pixel-diff 11.5% → 5% once fixed.
+  - **Detect:** `tools/visual-diff.js` — compare “section widths orig vs conv”; a width
+    that grew = a lost container constraint.
+  - **Fix:** re-add the constraint in the theme / `custom-css-js` CSS, e.g.
+    `body.home .my-hero{max-width:1140px;margin-inline:auto}`. **Often needs
+    `!important`** — Astra/resets set `max-width:none` on `section` with equal-or-higher
+    specificity, so a plain rule is silently overridden (verify with
+    `getComputedStyle().maxWidth`, not just “the rule is in the stylesheet”).
+  - Conversely, sections that were meant to be full-bleed must stay full-width — Astra's
+    `ast-page-builder-template` usually keeps that; verify per theme. Don't fix this with
+    a blanket `max-width` on the content wrapper: full-bleed dark bands then shrink and
+    the diff gets *worse* (measured).
 - **On-disk CSS cache.** Background images (`background:url(...)`) often live in
   `uploads/custom-css-js/*.css` on disk, outside the DB — `wp search-replace` won't
   touch them; `sed` the files directly when changing domains.
@@ -124,7 +150,8 @@ snippet, and the cloudflared ingress + DNS recipe. All passwords are placeholder
 tools/analyze-elementor.php   inventory of Elementor pages + widget-type histogram
 tools/extract-page.php        extract one page (dry-run / --apply)
 tools/convert-all.php         bulk-convert every page + clean up meta
-tools/compare-content.py      visible-content parity of two URLs
+tools/compare-content.py      visible-content (text) parity of two URLs
+tools/visual-diff.js          pixel + computed-CSS-token parity (catches layout/colour)
 tools/package-updraft.sh      build an UpdraftPlus-format archive
 hosting/docker-compose.yml    WP stack template (sanitized)
 hosting/apache-override.conf  Apache reverse-proxy + AllowOverride
@@ -134,7 +161,9 @@ hosting/cloudflared.md        ingress + DNS recipe
 
 ## Requirements
 
-WP-CLI, PHP 7.4+, MySQL/MariaDB, `zip`/`gzip`. Python 3 for the parity check.
+WP-CLI, PHP 7.4+, MySQL/MariaDB, `zip`/`gzip`. Python 3 for the text parity check.
+Node 18+ with `playwright pixelmatch pngjs` (`npx playwright install chromium`) for
+the visual parity check.
 
 ## License
 
