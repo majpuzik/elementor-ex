@@ -115,6 +115,36 @@ site, AI adds nothing.
     `ast-page-builder-template` usually keeps that; verify per theme. Don't fix this with
     a blanket `max-width` on the content wrapper: full-bleed dark bands then shrink and
     the diff gets *worse* (measured).
+
+### Reproducing the layout — two paths (tested on a real 17-page site)
+
+What we found by spinning the source up with Elementor + wp-cli and inspecting:
+the containers had **no custom layout settings** (`settings` was `{}`) and there was
+**no active kit**, so Elementor emitted **zero per-post CSS** — the boxing came purely
+from its `frontend.css` default `.e-con-inner{max-width:1140px}`. So there's nothing
+page-specific to "keep"; the gap is just that one default rule.
+
+- **`tools/convert-layout.php` — reproduce the boxing (clean, ~95–98%).** Same clean
+  extraction as `convert-all.php`, but wraps each top-level Elementor container in
+  `<div class="exl-con exl-boxed|exl-full">` and writes `mu-plugins/exl-layout.css`
+  (+ enqueue) reproducing only the boxed/full width (from the kit's `container_width`,
+  else the 1140 default). Deterministic, no AI, stays clean. **Caveat:** if the content
+  already self-boxes (its own `.section/.container` CSS), this wrapper is redundant and
+  can fight full-bleed bands — `convert-all.php` + a targeted fix for the one element
+  that broke is then better. **Always confirm with `visual-diff.js`.**
+- **Freeze — literal pixel-100% (but not clean).** A clean reimplementation can't be
+  byte-for-byte: only keeping Elementor's *own* CSS is. Set
+  `elementor_css_print_method=external`, render every page so Elementor writes its CSS
+  (or capture the inline `<style>` if it stays internal), keep `frontend.min.css` + any
+  `uploads/elementor/css/*`, reproduce the `e-con` wrapper markup, enqueue that CSS from
+  an mu-plugin, then remove the plugin. Re-tokenize dynamic shortcodes before capture so
+  litter grids etc. stay live. Trade-off: markup keeps `elementor-*` classes and the CSS
+  is Elementor's (verbose). Use only when literal parity is contractually required.
+
+Bottom line on “100%”: colour/typography/content come over exactly; **literal pixel
+parity is a freeze, not a conversion** — two render engines differ at the sub-pixel
+(font AA, image scaling) regardless. Aim for *visually indistinguishable*, verify with
+`visual-diff.js`, and don't claim 1:1 you didn't measure.
 - **On-disk CSS cache.** Background images (`background:url(...)`) often live in
   `uploads/custom-css-js/*.css` on disk, outside the DB — `wp search-replace` won't
   touch them; `sed` the files directly when changing domains.
@@ -149,7 +179,8 @@ snippet, and the cloudflared ingress + DNS recipe. All passwords are placeholder
 ```
 tools/analyze-elementor.php   inventory of Elementor pages + widget-type histogram
 tools/extract-page.php        extract one page (dry-run / --apply)
-tools/convert-all.php         bulk-convert every page + clean up meta
+tools/convert-all.php         bulk-convert every page + clean up meta (content only)
+tools/convert-layout.php      bulk-convert + reproduce container boxing (exl-layout.css)
 tools/compare-content.py      visible-content (text) parity of two URLs
 tools/visual-diff.js          pixel + computed-CSS-token parity (catches layout/colour)
 tools/package-updraft.sh      build an UpdraftPlus-format archive
