@@ -66,7 +66,30 @@ classification first.
 | `divider` / `spacer` | ✅ | `wp:separator` / `wp:spacer` |
 | `video` | ✅ | `wp:embed` |
 | `image-box` / `icon-box` | ⚠️ | image+heading+text + `TODO check` |
-| `posts` / `form` / `accordion` / unknown | ❌ | `<!-- TODO MANUAL: type — settings… -->` placeholder |
+| `icon` | ⚠️ | `<span class="…">` + `TODO check icon font` |
+| `nav-menu` | ⚠️ | `TODO` carrying the menu slug → wire to `wp:navigation` |
+| `posts` / `loop-grid` / `portfolio` | ⚠️ | `TODO` carrying `post_type` + `per_page` → `wp:query` |
+| `form` | ⚠️ | `TODO` listing the field labels → rebuild as CF7 |
+| `accordion` / `tabs` / Pro / unknown | ❌ | `<!-- TODO MANUAL: type — settings… -->` placeholder |
+
+### Real-world coverage — measured on 203 live Elementor sites
+
+Surveyed 203 real public Elementor sites (widget types read from rendered HTML),
+distributed in parallel across three nodes (a GPU box at low concurrency + two Macs).
+97 responded with widgets (106 were bot-blocked/JS-only to a plain `curl`). Of the 97:
+
+| | sites | |
+|---|---|---|
+| ✅ fully auto-convertible | 3 | 3% |
+| ⚠️ mostly (<25% manual + guided TODOs) | 56 | 57% |
+| ❌ manual-heavy (≥25%) | 38 | 39% |
+| **convert-plus carries the main content** | **59/97** | **60%** |
+
+The dominant widgets are exactly the auto-mapped ones (heading 2838×, image 1501×,
+text-editor 1190×, button 768×, icon-list/spacer/divider). The manual half is dynamic
+(JetEngine, posts), e-commerce (Woo), nav-menus and forms — the `⚠️` rows above turn
+those into guided TODOs (menu slug, query, field labels) rather than blanks, which
+pushes the practical coverage well past the raw 60%.
 
 Tested on a synthetic page (all the above widget types): the ✅ ones produced correct
 native blocks that render via the theme; image-box came over as best-effort with a

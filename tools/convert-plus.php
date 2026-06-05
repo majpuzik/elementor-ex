@@ -60,7 +60,20 @@ $mapw = function ($el) use ($esc, $lvl, &$mapw) {
         case 'video':
             $u = $s['youtube_url'] ?? ($s['vimeo_url'] ?? ($s['hosted_url']['url'] ?? ''));
             return $u===''?null:array('auto', "<!-- wp:embed {\"url\":\"".esc_url($u)."\",\"type\":\"video\"} -->\n<figure class=\"wp-block-embed\"><div class=\"wp-block-embed__wrapper\">".esc_url($u)."</div></figure>\n<!-- /wp:embed -->");
-        // ⚠️ semi — best effort, mark for polish
+        // ⚠️ semi — best effort, extract the useful data so the manual step is guided
+        case 'icon':
+            $ic = $esc($s['selected_icon']['value'] ?? ($s['icon'] ?? ''));
+            return array('semi', "<!-- wp:html -->\n<!-- TODO check icon (needs icon font) -->\n<span class=\"$ic\"></span>\n<!-- /wp:html -->");
+        case 'nav-menu':
+            $mn = $esc($s['menu'] ?? '');
+            return array('semi', "<!-- wp:html -->\n<!-- TODO: Elementor nav-menu '$mn' → wire to a wp:navigation block (same menu) -->\n<!-- /wp:html -->");
+        case 'posts': case 'loop-grid': case 'portfolio':
+            $pt = $esc($s['posts_post_type'] ?? ($s['query_post_type'] ?? 'post')); $pp = (int)($s['posts_per_page'] ?? 6);
+            return array('semi', "<!-- wp:html -->\n<!-- TODO: Elementor '$wt' → wp:query loop. post_type=$pt, per_page=$pp -->\n<!-- /wp:html -->");
+        case 'form':
+            $fl = array(); foreach ((array)($s['form_fields'] ?? array()) as $ff) { $l = trim((string)($ff['field_label'] ?? $ff['field_type'] ?? '')); if ($l!=='') $fl[] = $esc($l); }
+            $fls = $fl ? implode(', ', $fl) : '?';
+            return array('semi', "<!-- wp:html -->\n<!-- TODO: Elementor form → rebuild as Contact Form 7 (it has its own config). Fields: $fls -->\n<!-- /wp:html -->");
         case 'image-box': case 'icon-box':
             $img = $s['image']['url'] ?? ''; $h = $esc($s['title_text'] ?? ($s['title'] ?? '')); $d = $esc($s['description_text'] ?? '');
             $b  = "<!-- wp:html -->\n<!-- TODO check (was $wt) -->\n";
