@@ -50,6 +50,10 @@ Always work on a copy, run `test` first, and verify with `tools/visual-diff.js` 
 The individual tools below (`convert-all`, `convert-plus`, `freeze-all`, …) still exist
 for finer control.
 
+📖 **[PLAYBOOK.md](PLAYBOOK.md)** — the full tabular how-to: decide if a site is a fit →
+clean vs freeze (measured 95.4% vs 98.4%) → the 8-step workflow → a gotchas table where
+every row is something that actually bit during a real conversion.
+
 ---
 
 ## ⚠️ Read this first — the limitation
