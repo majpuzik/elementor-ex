@@ -1,5 +1,13 @@
 # elementor-ex
 
+![Real-world coverage](https://img.shields.io/badge/real--world_coverage-60%25-yellowgreen)
+![Tested on](https://img.shields.io/badge/tested-203_live_sites-blue)
+![Engine](https://img.shields.io/badge/deterministic-no_AI-brightgreen)
+
+> Real-world coverage measured on **203 live Elementor sites** (parallel survey): of the
+> 97 that responded, `elementor-ex` carries the main content on **59 (60%)** — the rest
+> get guided `MANUAL-TODO.md` items, not blanks.
+
 **A toolkit to remove Elementor from a WordPress site and replace it with native
 WordPress content** (Gutenberg `wp:html` / `wp:shortcode` blocks) — **text-exact and
 fully deterministic, no AI**. The *content* comes over 1:1; **visual** parity is not
