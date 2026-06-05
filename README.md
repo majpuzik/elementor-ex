@@ -16,6 +16,34 @@ theme then renders the page exactly as before — just without Elementor.
 
 ---
 
+## Quick start — one command, two choices
+
+`tools/elementor-ex.php` is the single entry point. It explains itself, then:
+
+```bash
+wp eval-file tools/elementor-ex.php          # explanation + the two choices
+wp eval-file tools/elementor-ex.php test     # (1) ANALYZE ONLY — per-page report of what
+                                             #     converts automatically vs needs a hand.
+                                             #     Changes nothing.
+wp eval-file tools/elementor-ex.php convert  # (2) CONVERT — write native blocks, remove
+                                             #     Elementor, and write a MANUAL-TODO.md
+                                             #     guide for every item to finish by hand.
+```
+
+Every widget is either converted to a native Gutenberg block (deterministically) or
+left as a labelled placeholder carrying its data — **nothing is silently lost**. The
+`convert` step writes `uploads/elementor-ex-MANUAL-TODO.md`, e.g.:
+
+> ## #10 — Demo
+> - ⚠️ **form** — rebuild as Contact Form 7 with fields: Jméno, Email.
+> - ❌ **accordion** — no native equivalent — rebuild by hand. settings: {…}
+
+Always work on a copy, run `test` first, and verify with `tools/visual-diff.js` after.
+The individual tools below (`convert-all`, `convert-plus`, `freeze-all`, …) still exist
+for finer control.
+
+---
+
 ## ⚠️ Read this first — the limitation
 
 **This tool only works well for one specific (but very common) case: sites that use
@@ -237,6 +265,7 @@ snippet, and the cloudflared ingress + DNS recipe. All passwords are placeholder
 ## Files
 
 ```
+tools/elementor-ex.php        ★ main entry: test | convert (+ MANUAL-TODO.md guide)
 tools/analyze-elementor.php   inventory of Elementor pages + widget-type histogram
 tools/extract-page.php        extract one page (dry-run / --apply)
 tools/convert-all.php         bulk-convert every page + clean up meta (content only)
