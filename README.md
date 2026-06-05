@@ -48,6 +48,33 @@ Real example this was built on: 17 Elementor pages, **only 3 widget types** —
 header/footer (the theme did those), CSS independent of Elementor. → mechanical 1:1
 conversion, 97–99% text parity against the live site, **zero** Elementor left.
 
+### `convert-plus.php` — also maps the *simple* visual widgets (tested)
+
+`convert-all.php` only carries html/shortcode/text. **`convert-plus.php`** additionally
+maps the simple visual widgets to native blocks deterministically, and for the hard
+ones emits a placeholder + the extracted data + a `<!-- TODO -->` so **nothing is
+silently dropped**. Run `wp eval-file tools/convert-plus.php report` for a per-page
+classification first.
+
+| Elementor widget | → | Result |
+|---|---|---|
+| `html` / `shortcode` / `text-editor` | ✅ | `wp:html` / `wp:shortcode` |
+| `heading` | ✅ | `wp:heading` (text + level) |
+| `image` | ✅ | `wp:image` (url, alt) |
+| `button` | ✅ | `wp:button` (text, link) |
+| `icon-list` | ✅ | `wp:list` |
+| `divider` / `spacer` | ✅ | `wp:separator` / `wp:spacer` |
+| `video` | ✅ | `wp:embed` |
+| `image-box` / `icon-box` | ⚠️ | image+heading+text + `TODO check` |
+| `posts` / `form` / `accordion` / unknown | ❌ | `<!-- TODO MANUAL: type — settings… -->` placeholder |
+
+Tested on a synthetic page (all the above widget types): the ✅ ones produced correct
+native blocks that render via the theme; image-box came over as best-effort with a
+TODO; `posts` became a labelled placeholder carrying its settings. Report output:
+`✅auto 7 | ⚠️semi 1 | ❌manual 1`. This widens the "fit" from *only html/shortcode* to
+*+ simple visual widgets* — only the genuinely dynamic/complex widgets stay manual,
+and for those you get a precise recipe instead of "rebuild".
+
 ### Other things it does NOT do
 
 - It does not migrate Elementor **theme-builder** headers/footers/templates (Pro). If
