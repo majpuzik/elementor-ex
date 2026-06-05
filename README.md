@@ -138,11 +138,13 @@ page-specific to "keep"; the gap is just that one default rule.
   dynamic shortcodes re-tokenized so litter grids stay live), preserves Elementor's CSS
   (`frontend.min.css` + the per-post `uploads/elementor/css/post-*.css` + kit CSS) into
   an mu-plugin that enqueues it, then you remove the plugin.
-  - **Tested on the real source:** frozen page vs the live Elementor render =
-    **96.7% pixel** (`visual-diff.js`, AA-insensitive) — the residual 3% is photo edges
-    + sub-pixel font AA, i.e. visually identical. With *only* `frontend.min.css`
-    (skipping the per-post CSS) it was **87%** — the `post-*.css` is what carries the
-    per-element layout, don't skip it.
+  - **Tested per-page on the real source** (13 pages, frozen vs the live Elementor
+    render, AA-insensitive pixel diff): **98.4% average, range 94.4–100%** (`vrhy` hit
+    100.0%; the lowest, the long photo-heavy `o-nás`, 94.4%). The residual is photo
+    edges + sub-pixel font AA — visually identical, and the photo-heavy pages score a
+    touch lower for that reason, not because of layout. With *only* `frontend.min.css`
+    (skipping the per-post CSS) the homepage was **87%** — the per-page `post-*.css` is
+    what carries the per-element layout, don't skip it.
   - **Order gotcha (measured):** deleting `_elementor_data` makes Elementor delete its
     own `post-*.css`. So `freeze-all.php` regenerates + copies the CSS **first**, then
     captures HTML, then deletes the meta. Doing it the other way silently loses the CSS.
