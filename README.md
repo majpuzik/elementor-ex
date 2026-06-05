@@ -201,6 +201,8 @@ hosting/wp-config-snippet.php HTTPS-behind-proxy + WP_HOME
 hosting/cloudflared.md        ingress + DNS recipe
 ```
 
+See **PLAYBOOK.md** for the tabular how-to (decide fit → pick clean/freeze → workflow → measured gotchas).
+
 ## Requirements
 
 WP-CLI, PHP 7.4+, MySQL/MariaDB, `zip`/`gzip`. Python 3 for the text parity check.
