@@ -132,14 +132,22 @@ page-specific to "keep"; the gap is just that one default rule.
   already self-boxes (its own `.section/.container` CSS), this wrapper is redundant and
   can fight full-bleed bands — `convert-all.php` + a targeted fix for the one element
   that broke is then better. **Always confirm with `visual-diff.js`.**
-- **Freeze — literal pixel-100% (but not clean).** A clean reimplementation can't be
-  byte-for-byte: only keeping Elementor's *own* CSS is. Set
-  `elementor_css_print_method=external`, render every page so Elementor writes its CSS
-  (or capture the inline `<style>` if it stays internal), keep `frontend.min.css` + any
-  `uploads/elementor/css/*`, reproduce the `e-con` wrapper markup, enqueue that CSS from
-  an mu-plugin, then remove the plugin. Re-tokenize dynamic shortcodes before capture so
-  litter grids etc. stay live. Trade-off: markup keeps `elementor-*` classes and the CSS
-  is Elementor's (verbose). Use only when literal parity is contractually required.
+- **`tools/freeze-all.php` — keep Elementor's own render + CSS (measured 96.7%).** A
+  clean reimplementation can't be byte-for-byte; only keeping Elementor's *own* output
+  is. This captures each page's rendered HTML (`get_builder_content_for_display`, with
+  dynamic shortcodes re-tokenized so litter grids stay live), preserves Elementor's CSS
+  (`frontend.min.css` + the per-post `uploads/elementor/css/post-*.css` + kit CSS) into
+  an mu-plugin that enqueues it, then you remove the plugin.
+  - **Tested on the real source:** frozen page vs the live Elementor render =
+    **96.7% pixel** (`visual-diff.js`, AA-insensitive) — the residual 3% is photo edges
+    + sub-pixel font AA, i.e. visually identical. With *only* `frontend.min.css`
+    (skipping the per-post CSS) it was **87%** — the `post-*.css` is what carries the
+    per-element layout, don't skip it.
+  - **Order gotcha (measured):** deleting `_elementor_data` makes Elementor delete its
+    own `post-*.css`. So `freeze-all.php` regenerates + copies the CSS **first**, then
+    captures HTML, then deletes the meta. Doing it the other way silently loses the CSS.
+  - Trade-off: markup keeps `elementor-*` classes and the CSS is Elementor's (verbose).
+    This is the path to use when literal parity is what's required.
 
 Bottom line on “100%”: colour/typography/content come over exactly; **literal pixel
 parity is a freeze, not a conversion** — two render engines differ at the sub-pixel
@@ -181,6 +189,7 @@ tools/analyze-elementor.php   inventory of Elementor pages + widget-type histogr
 tools/extract-page.php        extract one page (dry-run / --apply)
 tools/convert-all.php         bulk-convert every page + clean up meta (content only)
 tools/convert-layout.php      bulk-convert + reproduce container boxing (exl-layout.css)
+tools/freeze-all.php          keep Elementor's render + CSS = literal pixel parity (~97%)
 tools/compare-content.py      visible-content (text) parity of two URLs
 tools/visual-diff.js          pixel + computed-CSS-token parity (catches layout/colour)
 tools/package-updraft.sh      build an UpdraftPlus-format archive
