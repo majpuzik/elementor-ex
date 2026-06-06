@@ -1,8 +1,4 @@
-# maj-wp-to-astra
-
-> Formerly `elementor-ex`. Same toolkit, broader name: take a WordPress site off
-> **Elementor** and onto **native Astra + Gutenberg** — and **verify** the result
-> from every angle (content, function, assets, plugins, pixels), not just eyeball it.
+# elementor-ex
 
 ![Real-world coverage](https://img.shields.io/badge/real--world_coverage-60%25-yellowgreen)
 ![Tested on](https://img.shields.io/badge/tested-203_live_sites-blue)
@@ -190,13 +186,6 @@ site, AI adds nothing.
 6. **Verify visual parity** — `node tools/visual-diff.js <url-original> <url-converted> <paths…>`.
    Read the per-band diff and the “section widths” line; fix any lost container widths
    (see *Container layout is lost*). Text parity passing does **not** imply visual parity.
-7. **Verify everything else** — `node tools/site-verify.js <orig-base> <converted-base>`.
-   One table per page: text words & headings (should match), broken images / failed
-   assets / console errors (converted should be ≤ original), forms present. This is the
-   gate that catches non-pixel regressions — a 404'd placeholder image, a menu item that
-   leaked in, a plugin grid that stopped rendering. On a real run it surfaced exactly
-   those: a `placeholder.jpg` 404 (present in the *original* too) and one stray menu
-   entry — both invisible to the pixel diff. Don't sign off on the visual diff alone.
 
 ### Gotchas learned the hard way
 
@@ -313,13 +302,6 @@ tools/survey-coverage.js      reproduces the real-world coverage number: reads w
                               from live sites' homepages, buckets them like convert-plus, prints
                               the auto/partial/manual table. Read-only; bring your own site list
                               via --sites <file> (one domain per line).
-tools/site-verify.js          ★ multi-dimension original-vs-converted gate (complements
-                              compare-all.js): per page it diffs visible TEXT (word + heading
-                              sets), counts broken images (naturalWidth 0), failed assets
-                              (HTTP ≥400), console JS errors, forms/CF7, and DOM structure.
-                              Catches what a pixel diff can't — a hidden 404 placeholder, a
-                              stray extra menu item, a plugin that stopped emitting output.
-                              `node tools/site-verify.js <orig-base> <converted-base>`
 tools/package-updraft.sh      build an UpdraftPlus-format archive
 hosting/docker-compose.yml    WP stack template (sanitized)
 hosting/apache-override.conf  Apache reverse-proxy + AllowOverride
