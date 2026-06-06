@@ -17,7 +17,7 @@
  *
  * Usage:
  *   node compare-all.js <base-converted> [base-original] [options]
- *     <base-converted>   the de-Elementorized / cleaned site (required), e.g. http://127.0.0.1:5703
+ *     <base-converted>   the de-Elementorized / cleaned site (required), e.g. http://127.0.0.1:8002
  *     [base-original]    the Elementor reference (optional) — enables pixel comparison
  *   options:
  *     --host <vhost>       Host header (serve an internal port as the right site,
