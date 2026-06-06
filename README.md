@@ -285,6 +285,12 @@ tools/convert-layout.php      bulk-convert + reproduce container boxing (exl-lay
 tools/freeze-all.php          keep Elementor's render + CSS = literal pixel parity (~97%)
 tools/compare-content.py      visible-content (text) parity of two URLs
 tools/visual-diff.js          pixel + computed-CSS-token parity (catches layout/colour)
+tools/compare-all.js          ★ all-pages Playwright sweep — auto-discovers pages from the
+                              sitemap, then per page: render-health (HTTP status + page/console
+                              JS errors + the "critical error" text curl can't see) and, with a
+                              second base, original-vs-converted pixel diff. One PASS/FAIL gate.
+                              --host <vhost> tests an internal port as the right site (maps via
+                              --host-resolver-rules → no Cloudflare in the way).
 tools/package-updraft.sh      build an UpdraftPlus-format archive
 hosting/docker-compose.yml    WP stack template (sanitized)
 hosting/apache-override.conf  Apache reverse-proxy + AllowOverride

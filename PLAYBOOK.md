@@ -38,6 +38,7 @@ Rozdíl 95→98 je **celý** v Elementor-boxovaných sekcích, co se samy neboxu
 | 5 | Odstraň Elementor | deaktivuj+smaž plugin, `_elementor_*` meta, `uploads/elementor/` | |
 | 6 | Ověř **text** | `compare-content.py` | cíl ≥97 %; zbytek = dynamika/locale |
 | 7 | Ověř **vizuál** | `visual-diff.js` | **per-page**, ne jen homepage |
+| 7b | **Sweep všech stránek** (pro jistotu) | `compare-all.js` | auto ze sitemapy → render-health (status + JS/console errory + „critical error") + volitelně pixel diff orig↔converted; jeden PASS/FAIL. `--host <vhost>` testuje interní port jako správný web (přes `--host-resolver-rules`, mimo Cloudflare). **Host hlavičku do Playwrightu NEcpát** — Chrome ji odmítne (`ERR_INVALID_ARGUMENT`). |
 | 8 | Oprav container-loss | cílený `max-width:1140px !important` | viz gotchy |
 
 ## 4. Gotchy (každá změřená, ne odhad)
