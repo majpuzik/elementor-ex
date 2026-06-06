@@ -131,6 +131,13 @@ text-editor 1190×, button 768×, icon-list/spacer/divider). The manual half is 
 those into guided TODOs (menu slug, query, field labels) rather than blanks, which
 pushes the practical coverage well past the raw 60%.
 
+Reproduce it yourself: `node tools/survey-coverage.js --sites yourlist.txt` (read-only — GETs
+homepages and buckets the widgets; bring your own one-domain-per-line list). On a 142-site
+curated showcase sample (87 reachable to a plain fetch) it reports **83% carries-content** —
+higher than the 60% above because showcase/"best-of" lists skew toward cleaner, simpler
+builds. The 60% is the more conservative figure from a *random* public sample; treat 60–83%
+as the real-world band, with 60% the honest floor.
+
 Tested on a synthetic page (all the above widget types): the ✅ ones produced correct
 native blocks that render via the theme; image-box came over as best-effort with a
 TODO; `posts` became a labelled placeholder carrying its settings. Report output:
@@ -291,6 +298,10 @@ tools/compare-all.js          ★ all-pages Playwright sweep — auto-discovers 
                               second base, original-vs-converted pixel diff. One PASS/FAIL gate.
                               --host <vhost> tests an internal port as the right site (maps via
                               --host-resolver-rules → no Cloudflare in the way).
+tools/survey-coverage.js      reproduces the real-world coverage number: reads widget types
+                              from live sites' homepages, buckets them like convert-plus, prints
+                              the auto/partial/manual table. Read-only; bring your own site list
+                              via --sites <file> (one domain per line).
 tools/package-updraft.sh      build an UpdraftPlus-format archive
 hosting/docker-compose.yml    WP stack template (sanitized)
 hosting/apache-override.conf  Apache reverse-proxy + AllowOverride
