@@ -205,11 +205,11 @@ site, AI adds nothing.
     that grew = a lost container constraint.
   - **Fix:** re-add the constraint in the theme / `custom-css-js` CSS, e.g.
     `body.home .my-hero{max-width:1140px;margin-inline:auto}`. **Often needs
-    `!important`** — Astra/resets set `max-width:none` on `section` with equal-or-higher
+    `!important`** — many themes reset `max-width:none` on `section` with equal-or-higher
     specificity, so a plain rule is silently overridden (verify with
     `getComputedStyle().maxWidth`, not just “the rule is in the stylesheet”).
-  - Conversely, sections that were meant to be full-bleed must stay full-width — Astra's
-    `ast-page-builder-template` usually keeps that; verify per theme. Don't fix this with
+  - Conversely, sections that were meant to be full-bleed must stay full-width — a theme's
+    full-width page template usually keeps that; verify per theme. Don't fix this with
     a blanket `max-width` on the content wrapper: full-bleed dark bands then shrink and
     the diff gets *worse* (measured).
 

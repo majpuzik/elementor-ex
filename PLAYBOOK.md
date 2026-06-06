@@ -46,7 +46,7 @@ Rozdíl 95→98 je **celý** v Elementor-boxovaných sekcích, co se samy neboxu
 | Past | Proč | Fix |
 |---|---|---|
 | Boxed obsah jde **full-width** (hero 1140→1440) | ztracený Elementor container `.e-con-inner{max-width}` | `max-width:1140px;margin-inline:auto` |
-| `max-width` se **tiše nepřebíjí** | Astra resetuje `section{max-width:none}` stejnou specificitou | **`!important`** nebo class-wrapper; ověř `getComputedStyle().maxWidth`, ne „rule je v CSS" |
+| `max-width` se **tiše nepřebíjí** | téma resetuje `section{max-width:none}` stejnou specificitou | **`!important`** nebo class-wrapper; ověř `getComputedStyle().maxWidth`, ne „rule je v CSS" |
 | Broad `max-width` na wrapper **zhorší** | full-bleed tmavé pásy se zúží | aplikuj **jen na konkrétní** element, ne plošně |
 | Freeze ztratí CSS = jen 87 % | smazání `_elementor_data` spustí Elementorovo **smazání `post-*.css`** | CSS **regeneruj+zkopíruj PŘED** smazáním meta |
 | Per-post CSS chybí | `post-*.css` nese **per-element** layout (87 % → 98 %) | zachovej `uploads/elementor/css/post-*.css` + enqueue per `is_singular()` |
